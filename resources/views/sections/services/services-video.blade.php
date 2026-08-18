@@ -17,7 +17,7 @@
         <img src="{{ asset('assets/img/feature/vedio-02.png') }}" alt="img" />
 
         <div class="video-box">
-          <a href="https://www.youtube.com/watch?v=Cn4G2lZ_g2I" class="video-btn video-popup">
+          <a href="https://www.youtube.com/watch?v=Cn4G2lZ_g2I" class="video-btn video-popup" aria-label="Play studio video">
             <i class="fa-solid fa-play"></i>
           </a>
         </div>

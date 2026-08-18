@@ -1,3 +1,29 @@
+/* Override font-display for the two FontAwesome fonts PageSpeed flagged
+   (fa-brands-400, fa-solid-900). Vendor file assets/css/all.min.css declares
+   these as font-display:block (text stays invisible up to 3s while the font
+   loads); redeclaring the exact same family/weight/src here with
+   font-display:swap — loaded after all.min.css — wins for that font-face
+   signature, so text shows immediately in a fallback font instead of
+   waiting/hiding. Kept as a redeclaration rather than editing the vendor
+   file, so a theme update to all.min.css can't silently lose the fix. */
+@font-face {
+  font-family: "Font Awesome 5 Brands";
+  font-display: swap;
+  font-weight: 400;
+  src:
+    url(../webfonts/fa-brands-400.woff2) format("woff2"),
+    url(../webfonts/fa-brands-400.ttf) format("truetype");
+}
+
+@font-face {
+  font-family: "Font Awesome 5 Pro";
+  font-display: swap;
+  font-weight: 900;
+  src:
+    url(../webfonts/fa-solid-900.woff2) format("woff2"),
+    url(../webfonts/fa-solid-900.ttf) format("truetype");
+}
+
 /* Custom GSAP-driven headline for the hero section: a lime "spotlight" pill
    scans back and forth across the first line, revealing a dark-colored copy
    of the same text underneath, while the second line stays static.

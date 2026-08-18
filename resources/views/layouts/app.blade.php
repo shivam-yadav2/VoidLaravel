@@ -9,14 +9,17 @@
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/all.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/animate.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/css/magnific-popup.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/meanmenu.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/swiper-bundle.min.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/css/nice-select.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/css/flaticon.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/main.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/custom.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/blog.css') }}" />
+
+    {{-- Only used by the video lightbox on the Services page (magnific-popup),
+         triggered on click — never needed for first paint, so it loads without
+         blocking render. noscript fallback covers JS-disabled visitors. --}}
+    <link rel="preload" href="{{ asset('assets/css/magnific-popup.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link rel="stylesheet" href="{{ asset('assets/css/magnific-popup.css') }}" /></noscript>
 
     @stack('styles')
 
@@ -48,8 +51,6 @@
     <script src="{{ asset('assets/js/SplitText.min.js') }}"></script>
     <script src="{{ asset('assets/js/TextPlugin.js') }}"></script>
     <script src="{{ asset('assets/js/chroma.min.js') }}"></script>
-    <script src="{{ asset('assets/js/three.js') }}"></script>
-    <script src="{{ asset('assets/js/webgl.js') }}"></script>
     <script src="{{ asset('assets/js/jquery.nice-select.min.js') }}"></script>
     <script src="{{ asset('assets/js/jquery.waypoints.js') }}"></script>
     <script src="{{ asset('assets/js/jquery.counterup.min.js') }}"></script>

@@ -14,9 +14,21 @@
               <div class="social-line">
                 <img src="{{ asset('assets/img/feature/small-line.png') }}" alt="img" />
               </div>
+              @php
+                // Fixed set from SiteConfig::socialLinks() — kept local rather
+                // than changing that method's return shape, since partials/seo.blade.php
+                // reads it as icon=>url directly for the JSON-LD `sameAs` field.
+                $socialLabels = [
+                  'fa-brands fa-instagram' => 'Instagram',
+                  'fa-brands fa-linkedin-in' => 'LinkedIn',
+                  'fa-brands fa-whatsapp' => 'WhatsApp',
+                  'fa-brands fa-facebook-f' => 'Facebook',
+                  'fa-brands fa-x-twitter' => 'X (Twitter)',
+                ];
+              @endphp
               <div class="social-icon">
                 @foreach ($site->socialLinks() as $icon => $url)
-                  <a href="{{ $url }}" target="_blank" rel="noopener noreferrer">
+                  <a href="{{ $url }}" target="_blank" rel="noopener noreferrer" aria-label="{{ $socialLabels[$icon] ?? 'Social link' }}">
                     <i class="{{ $icon }}"></i>
                   </a>
                 @endforeach

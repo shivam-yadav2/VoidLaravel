@@ -4,4 +4,4 @@ Allow: /
 Disallow: /admin
 Disallow: /admin/
 
-Sitemap: /sitemap.xml
+Sitemap: https://voidlayer.in/sitemap.xml

@@ -13,7 +13,7 @@
             </a>
           </div>
           <div class="offcanvas__close">
-            <button><i class="fas fa-times"></i></button>
+            <button type="button" aria-label="Close menu"><i class="fas fa-times"></i></button>
           </div>
         </div>
         <div class="mobile-menu fix mb-3"></div>

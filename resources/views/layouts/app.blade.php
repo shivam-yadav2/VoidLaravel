@@ -12,8 +12,12 @@
     <link rel="stylesheet" href="{{ asset('assets/css/meanmenu.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/swiper-bundle.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/main.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/css/custom.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/css/blog.css') }}" />
+    {{-- Cache-busted with the file's own mtime: public/.htaccess gives every
+         CSS/JS file 30-day immutable browser caching, so without a changing
+         query string, editing this file on the server would never reach
+         browsers that already cached the old one. --}}
+    <link rel="stylesheet" href="{{ asset('assets/css/custom.css') }}?v={{ @filemtime(public_path('assets/css/custom.css')) }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/blog.css') }}?v={{ @filemtime(public_path('assets/css/blog.css')) }}" />
 
     {{-- Only used by the video lightbox on the Services page (magnific-popup),
          triggered on click — never needed for first paint, so it loads without

@@ -1,3 +1,31 @@
+/* Admin-uploaded icon/photo containment. The vendor theme (main.css) never
+   constrains these <img> dimensions because its own bundled icons were all
+   pre-sized to match the design (~50-70px). Now that these fields accept any
+   admin-uploaded image with no dimension limit (only a file-size cap), an
+   oversized upload renders at its natural size with nothing to contain it —
+   breaking the circular badge layout and overflowing into the next section.
+   Fixes a real bug: uploading a large tech-badge icon overflowed past its
+   296px circle into the FAQ section below it. */
+.feature-wrapper .feature-items .feature-box .icon img {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+}
+
+.achievement-section .achievement-area .achievement-icon-items .icon img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+}
+
+.testimonial-card .testimonial-top .author-info img {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
 /* Override font-display for the two FontAwesome fonts PageSpeed flagged
    (fa-brands-400, fa-solid-900). Vendor file assets/css/all.min.css declares
    these as font-display:block (text stays invisible up to 3s while the font

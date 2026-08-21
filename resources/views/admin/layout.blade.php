@@ -6,8 +6,10 @@
     <meta name="robots" content="noindex, nofollow" />
     <link rel="icon" href="{{ asset('assets/img/void_logo.png') }}" />
     <title>@yield('title', 'Admin') · {{ $site->site_name }}</title>
-    <link rel="stylesheet" href="{{ asset('assets/css/admin.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/css/admin-forms.css') }}" />
+    {{-- Cache-busted with the file's own mtime — see the same comment in
+         layouts/app.blade.php for why. --}}
+    <link rel="stylesheet" href="{{ asset('assets/css/admin.css') }}?v={{ @filemtime(public_path('assets/css/admin.css')) }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/admin-forms.css') }}?v={{ @filemtime(public_path('assets/css/admin-forms.css')) }}" />
   </head>
   <body>
     @auth

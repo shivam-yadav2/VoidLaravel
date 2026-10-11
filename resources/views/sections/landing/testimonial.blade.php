@@ -1,22 +1,14 @@
-@php
-  $testimonials = \App\Models\Testimonial::active()->get();
-  $starsFor = fn (int $rating) => '<div class="rating">'
-      . str_repeat('<i class="fa-solid fa-star"></i>', $rating)
-      . str_repeat('<i class="fa-regular fa-star"></i>', 5 - $rating)
-      . '</div>';
-@endphp
+{{-- $testimonials comes from the view composer in AppServiceProvider. The
+     whole section stays hidden until at least one testimonial is active. --}}
 @if ($testimonials->isNotEmpty())
 <section class="testimonial-section section-padding fix section-bg">
   <div class="container">
     <div class="section-title text-center">
-      <div class="title-counter">
-        <span class="title-count"><span class="count">{{ $testimonials->count() }}</span>+</span>
-      </div>
       <span class="sub-title">
-        <img src="{{ asset('assets/img/title/icon-12.svg') }}" alt="img" />
-        Trusted Customers
+        <img loading="lazy" decoding="async" src="{{ asset('assets/img/title/icon-12.svg') }}" alt="" />
+        Client Feedback
       </span>
-      <h2 class="tx-title sec_title tz-itm-title tz-itm-anim">Testimonials From Real <br /> Customers</h2>
+      <h2 class="tx-title sec_title tz-itm-title tz-itm-anim">What Our Clients <br /> Say</h2>
     </div>
   </div>
 
@@ -24,26 +16,30 @@
     <div class="swiper-wrapper slide-transtion">
       @foreach ($testimonials as $t)
         <div class="swiper-slide brand-slide-element">
-          <div class="testimonial-card">
+          <figure class="testimonial-card">
             <div class="testimonial-top">
               <div class="author-info">
                 @if ($t->photoUrl())
-                  <img src="{{ $t->photoUrl() }}" alt="{{ $t->client_name }}" />
+                  <img loading="lazy" decoding="async" src="{{ $t->photoUrl() }}" alt="{{ $t->client_name }}" width="56" height="56" />
                 @endif
-                <div class="content">
+                <figcaption class="content">
                   <h3>{{ $t->client_name }}</h3>
-                  <span>{{ trim(($t->client_role ?? '') . ($t->client_company ? ' · ' . $t->client_company : '')) }}</span>
-                </div>
+                  <span>{{ trim(($t->client_role ?? '') . ($t->client_role && $t->client_company ? ' · ' : '') . ($t->client_company ?? '')) }}</span>
+                </figcaption>
               </div>
               <div class="quote-icon">
-                <img src="{{ asset('assets/img/testimonial/koma.svg') }}" alt="img" />
+                <img loading="lazy" decoding="async" src="{{ asset('assets/img/testimonial/koma.svg') }}" alt="" />
               </div>
             </div>
 
-            {!! $starsFor($t->rating) !!}
+            <div class="rating" role="img" aria-label="Rated {{ $t->rating }} out of 5">
+              @for ($star = 1; $star <= 5; $star++)
+                <i class="{{ $star <= $t->rating ? 'fa-solid' : 'fa-regular' }} fa-star" aria-hidden="true"></i>
+              @endfor
+            </div>
 
-            <p class="testimonial-text">&ldquo;{{ $t->quote }}&rdquo;</p>
-          </div>
+            <blockquote class="testimonial-text">&ldquo;{{ $t->quote }}&rdquo;</blockquote>
+          </figure>
         </div>
       @endforeach
     </div>
@@ -52,7 +48,7 @@
   <div class="container">
     <div class="testimonial-btn-area">
       <a href="{{ route('contact') }}" class="theme-btn">
-        <i class="fa-solid fa-arrow-right"></i>
+        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
         Start a project
       </a>
     </div>

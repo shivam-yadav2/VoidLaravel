@@ -98,7 +98,8 @@ class ContentSeeder extends Seeder
 <p>We do not share your information with third parties except where required to operate our business (for example, our email provider) or where legally required.</p>
 
 <h2>Cookies</h2>
-<p>The site uses a single session cookie required for form security (CSRF protection). It is not used for tracking or profiling.</p>
+<p>The site always sets two essential cookies: a session cookie and a security token that protects forms (CSRF protection). Neither is used for tracking or profiling.</p>
+<p>If we enable analytics (such as Google Analytics or the Meta Pixel), those tools set their own cookies <strong>only after you click &ldquo;Accept&rdquo;</strong> on the cookie banner. If you decline, they are never loaded. You can reset your choice at any time by clearing this site&rsquo;s data in your browser.</p>
 
 <h2>Your rights</h2>
 <p>You can ask us what data we hold about you, ask for corrections, or ask us to delete it. Email us and we will respond within a reasonable period.</p>

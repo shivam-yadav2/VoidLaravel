@@ -66,8 +66,8 @@
           <div class="adm-field">
             <label for="published_at">Publish date</label>
             <input id="published_at" name="published_at" type="datetime-local"
-                   value="{{ old('published_at', $post->published_at?->format('Y-m-d\TH:i')) }}" />
-            <span class="adm-help">Leave blank to publish immediately. A future date schedules the post.</span>
+                   value="{{ old('published_at', $post->published_at?->displayTz()->format('Y-m-d\TH:i')) }}" />
+            <span class="adm-help">Times are in {{ config('app.display_timezone') }}. Leave blank to publish immediately. A future date schedules the post.</span>
           </div>
 
           <div class="adm-field">

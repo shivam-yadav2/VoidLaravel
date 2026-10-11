@@ -68,6 +68,14 @@ return [
     'timezone' => 'UTC',
 
     /*
+    | Timestamps are stored in UTC (above) but shown to people — admin lead
+    | and post times, public post dates — and entered (the post "Publish
+    | date" field) in this timezone. See the Carbon `displayTz()` macro in
+    | AppServiceProvider.
+    */
+    'display_timezone' => env('APP_DISPLAY_TIMEZONE', 'Asia/Kolkata'),
+
+    /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration
     |--------------------------------------------------------------------------

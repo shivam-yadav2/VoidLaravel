@@ -13,6 +13,12 @@
     RewriteCond %{HTTP:x-xsrf-token} .
     RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
 
+    # /index.php/about duplicates /about — 301 to the clean URL.
+    # (THE_REQUEST is the raw request line, so Laravel's own internal
+    # rewrite to index.php below never matches this.)
+    RewriteCond %{THE_REQUEST} \s/+index\.php(?:/([^\s?]*))?[\s?] [NC]
+    RewriteRule ^ /%1 [R=301,L,NE]
+
     # Redirect Trailing Slashes If Not A Folder...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_URI} (.+)/$
@@ -24,26 +30,38 @@
     RewriteRule ^ index.php [L]
 </IfModule>
 
-# Static asset caching — the vendor JS/CSS in assets/ never changes without a
-# deploy, so a long cache lifetime is safe. Fixes PageSpeed's "Use efficient
-# cache lifetimes" finding (JS files were shipping with no cache header at
-# all, unlike images which already had one).
+# Static asset caching.
+#
+# Local CSS/JS are linked with a ?v=<file mtime> query string (see
+# layouts/app.blade.php), so a changed file always gets a new URL and can be
+# cached for a long time. Images and fonts are NOT versioned, so they get a
+# shorter lifetime and no `immutable` — otherwise replacing an image under the
+# same filename wouldn't reach returning visitors for a month.
 <IfModule mod_expires.c>
     ExpiresActive On
-    ExpiresByType text/css "access plus 1 month"
-    ExpiresByType application/javascript "access plus 1 month"
-    ExpiresByType text/javascript "access plus 1 month"
-    ExpiresByType image/png "access plus 1 year"
-    ExpiresByType image/jpeg "access plus 1 year"
-    ExpiresByType image/webp "access plus 1 year"
-    ExpiresByType image/svg+xml "access plus 1 year"
-    ExpiresByType image/x-icon "access plus 1 year"
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType text/javascript "access plus 1 year"
+    ExpiresByType image/png "access plus 7 days"
+    ExpiresByType image/jpeg "access plus 7 days"
+    ExpiresByType image/webp "access plus 7 days"
+    ExpiresByType image/svg+xml "access plus 7 days"
+    ExpiresByType image/x-icon "access plus 7 days"
+    ExpiresByType video/mp4 "access plus 7 days"
     ExpiresByType font/woff2 "access plus 1 year"
     ExpiresByType font/woff "access plus 1 year"
 </IfModule>
 
 <IfModule mod_headers.c>
-    <FilesMatch "\.(css|js|png|jpe?g|webp|svg|ico|woff2?|ttf|eot)$">
-        Header set Cache-Control "public, max-age=2592000, immutable"
+    <FilesMatch "\.(css|js|woff2?|ttf)$">
+        Header set Cache-Control "public, max-age=31536000"
     </FilesMatch>
+    <FilesMatch "\.(png|jpe?g|webp|svg|ico|mp4)$">
+        Header set Cache-Control "public, max-age=604800, stale-while-revalidate=86400"
+    </FilesMatch>
+</IfModule>
+
+# Text compression — CSS/JS/HTML/SVG shrink ~70-80% over the wire.
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/css text/xml application/xml application/javascript text/javascript application/json image/svg+xml font/ttf
 </IfModule>

@@ -61,10 +61,19 @@ class Totp
      */
     public static function verify(string $base32Secret, string $code, int $window = 1, ?int $timestamp = null): bool
     {
+        return self::matchedStep($base32Secret, $code, $window, $timestamp) !== null;
+    }
+
+    /**
+     * Like verify(), but returns the time step the code matched (or null).
+     * Login stores it so the same code can't be replayed within its window.
+     */
+    public static function matchedStep(string $base32Secret, string $code, int $window = 1, ?int $timestamp = null): ?int
+    {
         $code = preg_replace('/\s+/', '', $code);
 
         if (! is_string($code) || ! preg_match('/^\d{6}$/', $code)) {
-            return false;
+            return null;
         }
 
         $timeStep = intdiv($timestamp ?? time(), self::PERIOD);
@@ -72,11 +81,11 @@ class Totp
 
         for ($i = -$window; $i <= $window; $i++) {
             if (hash_equals(self::codeForStep($secretBytes, $timeStep + $i), $code)) {
-                return true;
+                return $timeStep + $i;
             }
         }
 
-        return false;
+        return null;
     }
 
     private static function codeForStep(string $secretBytes, int $timeStep): string

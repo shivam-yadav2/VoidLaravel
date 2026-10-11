@@ -6,7 +6,7 @@
   <div class="adm-page-head">
     <div>
       <h1>Dashboard</h1>
-      <p class="adm-muted">{{ now()->format('l, d F Y') }}</p>
+      <p class="adm-muted">{{ now()->displayTz()->format('l, d F Y') }}</p>
     </div>
   </div>
 

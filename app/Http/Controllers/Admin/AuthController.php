@@ -43,6 +43,7 @@ class AuthController extends Controller
         $user = User::where('email', $credentials['email'])->first();
 
         if ($user->hasTwoFactorEnabled()) {
+            $request->session()->regenerate();
             $request->session()->put('2fa.user.id', $user->id);
             $request->session()->put('2fa.remember', $request->boolean('remember'));
 
@@ -84,7 +85,14 @@ class AuthController extends Controller
 
         $code = trim($request->input('code'));
 
-        if (Totp::verify($user->two_factor_secret, $code)) {
+        $step = Totp::matchedStep($user->two_factor_secret, $code);
+
+        // A code is only good once: reject a step at or before the last one
+        // used, so a code shoulder-surfed or phished mid-login can't be
+        // replayed within its 90-second validity window.
+        if ($step !== null && ($user->two_factor_last_step === null || $step > $user->two_factor_last_step)) {
+            $user->forceFill(['two_factor_last_step' => $step])->save();
+
             return $this->completeTwoFactorLogin($request, $user);
         }
 

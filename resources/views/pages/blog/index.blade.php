@@ -1,10 +1,10 @@
 @extends('layouts.app')
 
 @section('content')
-  <section class="hero-section hero-1 fix bg-cover blog-hero" style="background-image: url({{ asset('assets/img/hero/hero-bg.jpg') }});">
+  <section class="hero-section hero-1 fix bg-cover blog-hero" style="background-image: url({{ asset('assets/img/hero/hero-bg.webp') }});">
     <div class="container">
       <div class="arrow-shape float-bob-x">
-        <img src="{{ asset('assets/img/hero/arrow-icon.png') }}" alt="img" />
+        <img src="{{ asset('assets/img/hero/arrow-icon.png') }}" alt="" />
       </div>
       <div class="row">
         <div class="col-lg-12">
@@ -37,8 +37,8 @@
         </div>
 
         <form method="GET" action="{{ route('blog.index') }}" class="blog-search" role="search">
-          <input type="search" name="q" value="{{ $q }}" placeholder="Search posts…" aria-label="Search posts" />
-          <button type="submit" aria-label="Search"><i class="fa-solid fa-magnifying-glass"></i></button>
+          <input type="search" name="q" value="{{ $q }}" maxlength="100" placeholder="Search posts…" aria-label="Search posts" />
+          <button type="submit" aria-label="Search"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
         </form>
       </div>
 
@@ -72,7 +72,7 @@
                   @if ($post->category)
                     <a href="{{ route('blog.category', $post->category) }}" class="blog-card__cat">{{ $post->category->name }}</a>
                   @endif
-                  <time datetime="{{ $post->published_at->toDateString() }}">{{ $post->published_at->format('d M Y') }}</time>
+                  <time datetime="{{ $post->published_at->displayTz()->toDateString() }}">{{ $post->published_at->displayTz()->format('d M Y') }}</time>
                   <span>{{ $post->readingMinutes() }} min read</span>
                 </div>
 
@@ -85,7 +85,7 @@
                 @endif
 
                 <a href="{{ route('blog.show', $post) }}" class="blog-card__link">
-                  Read article <i class="fa-solid fa-arrow-right"></i>
+                  Read article<span class="visually-hidden-label">: {{ $post->title }}</span> <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
                 </a>
               </div>
             </article>

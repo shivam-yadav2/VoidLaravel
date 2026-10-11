@@ -1,7 +1,5 @@
 @extends('layouts.app')
 
-@section('title', 'Contact Us')
-
 @section('content')
   <div class="contact-page">
     @include('sections.contact.contact-hero')

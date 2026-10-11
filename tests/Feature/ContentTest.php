@@ -153,7 +153,7 @@ class ContentTest extends TestCase
     {
         SeoMeta::create(['key' => 'about', 'noindex' => true]);
 
-        $this->get('/about')->assertSee('content="noindex, nofollow"', false);
+        $this->get('/about')->assertSee('content="noindex, follow"', false);
         $this->get('/services')->assertSee('index, follow', false);
     }
 

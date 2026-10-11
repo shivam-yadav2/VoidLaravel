@@ -1,11 +1,10 @@
 @extends('layouts.app')
 
-@section('title', 'Home')
-
 @section('content')
   @include('sections.landing.hero')
   @include('sections.landing.features-bar')
   @include('sections.landing.choose-us')
+  @include('sections.landing.products')
   @include('sections.landing.different-element')
   @include('sections.landing.showcase-product')
   @include('sections.landing.marquee-section-2')

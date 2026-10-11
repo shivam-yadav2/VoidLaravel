@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Post;
+use App\Models\Redirect;
+use App\Support\Like;
+use Illuminate\Support\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -21,7 +24,7 @@ class PostController extends Controller
         $posts = Post::query()
             ->with('category')
             ->when(in_array($status, Post::STATUSES, true), fn ($q) => $q->where('status', $status))
-            ->when($request->query('q'), fn ($q, $term) => $q->where('title', 'like', "%{$term}%"))
+            ->when(trim((string) $request->query('q')), fn ($q, $term) => $q->where('title', 'like', Like::contains($term)))
             ->latest('created_at')
             ->paginate(15)
             ->withQueryString();
@@ -74,6 +77,8 @@ class PostController extends Controller
     public function update(Request $request, Post $post): RedirectResponse
     {
         $data = $this->validated($request, $post);
+        $oldSlug = $post->slug;
+        $wasLive = $post->isLive();
 
         if ($request->boolean('remove_image') && $post->featured_image) {
             Storage::disk('public')->delete($post->featured_image);
@@ -88,6 +93,12 @@ class PostController extends Controller
         }
 
         $post->update($data);
+
+        // A live post's old URL may already be shared or indexed — keep it
+        // working by 301-ing it to the new one.
+        if ($wasLive && $post->slug !== $oldSlug) {
+            Redirect::forRename('/blog/'.$oldSlug, '/blog/'.$post->slug);
+        }
 
         return back()->with('admin_success', 'Post saved.');
     }
@@ -146,6 +157,11 @@ class PostController extends Controller
         // be scheduled by setting a future date.
         if ($data['status'] === Post::STATUS_PUBLISHED && empty($data['published_at'])) {
             $data['published_at'] = now();
+        } elseif (! empty($data['published_at'])) {
+            // The datetime-local field is filled in local (display) time;
+            // storage is UTC.
+            $data['published_at'] = Carbon::parse($data['published_at'], config('app.display_timezone'))
+                ->setTimezone(config('app.timezone'));
         }
 
         return $data;

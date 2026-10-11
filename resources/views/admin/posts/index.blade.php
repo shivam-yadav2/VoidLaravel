@@ -53,7 +53,7 @@
                   <span class="adm-badge adm-badge--new">scheduled</span>
                 @endif
               </td>
-              <td class="adm-muted adm-small">{{ $post->published_at?->format('d M Y') ?: '—' }}</td>
+              <td class="adm-muted adm-small">{{ $post->published_at?->displayTz()->format('d M Y') ?: '—' }}</td>
               <td class="adm-muted adm-small">{{ $post->views }}</td>
               <td class="adm-right">
                 @if ($post->isLive())

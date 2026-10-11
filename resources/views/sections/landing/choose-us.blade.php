@@ -11,19 +11,19 @@
               <h3>Custom Software, Built Around You</h3>
               <p class="text-1">From internal tools to customer-facing apps, we design and build software that fits how your business actually works.</p>
             </div>
-            <a href="{{ url('/contact') }}" class="purchase-circle">
-              <img src="{{ asset('assets/img/choose-us/arrow.png') }}" alt="img" />
+            <a href="{{ route('contact') }}" class="purchase-circle">
+              <img loading="lazy" decoding="async" src="{{ asset('assets/img/choose-us/arrow.png') }}" alt="" />
               <span>Get In Touch</span>
             </a>
             <div class="image-1">
-              <img src="{{ asset('assets/img/choose-us/choose-001.png') }}" alt="img" />
+              <img loading="lazy" decoding="async" src="{{ asset('assets/img/choose-us/choose-001.webp') }}" alt="" />
             </div>
           </div>
         </div>
         <div class="col-xl-3 col-lg-3 col-sm-6">
           <div class="choose-us-item-box item-box-2">
             <div class="image-2">
-              <img src="{{ asset('assets/img/choose-us/choose-02.png') }}" alt="img" />
+              <img loading="lazy" decoding="async" src="{{ asset('assets/img/choose-us/choose-02.png') }}" alt="" />
             </div>
             <div class="choose-content content-2">
               <h3>Reliable &amp; Scalable</h3>
@@ -38,17 +38,17 @@
               <p>We handle data migration and setup, so switching from spreadsheets or legacy systems to your new software is simple.</p>
             </div>
             <div class="image-3">
-              <img src="{{ asset('assets/img/choose-us/choose-003.png') }}" alt="img" />
+              <img loading="lazy" decoding="async" src="{{ asset('assets/img/choose-us/choose-003.webp') }}" alt="" />
             </div>
             <div class="arrow-shape">
-              <img src="{{ asset('assets/img/choose-us/arrow-shape.png') }}" alt="img" />
+              <img loading="lazy" decoding="async" src="{{ asset('assets/img/choose-us/arrow-shape.png') }}" alt="" />
             </div>
           </div>
         </div>
         <div class="col-xl-3 col-lg-3 col-sm-6">
           <div class="choose-us-item-box item-box-3 bg-cover" style="background-image: url('{{ asset('assets/img/card-bg.jpg') }}');">
             <div class="image-2">
-              <img src="{{ asset('assets/img/choose-us/choose-04.png') }}" alt="img" />
+              <img loading="lazy" decoding="async" src="{{ asset('assets/img/choose-us/choose-04.png') }}" alt="" />
             </div>
             <div class="choose-content content-2 style-2">
               <h3>Thoughtful Design</h3>
@@ -57,21 +57,21 @@
           </div>
         </div>
         <div class="col-xl-6 col-lg-6 col-sm-6">
-          <div class="choose-us-item-box bg-cover" style="background-image: url('{{ asset('assets/img/card-bg-2.jpg') }}');">
+          <div class="choose-us-item-box bg-cover" style="background-image: url('{{ asset('assets/img/card-bg-2.webp') }}');">
             <div class="choose-content content-4">
-              <img width="222" src="{{ asset('assets/img/choose-us/count-img-1.png') }}" alt="img" />
+              <img loading="lazy" decoding="async" width="222" src="{{ asset('assets/img/choose-us/count-img-1.png') }}" alt="" />
               <h3 class="text-black">Solutions Tailored to <span>Your Business</span></h3>
               <p>No off-the-shelf templates — every system we build is scoped around your workflows, your data and your goals.</p>
             </div>
             <div class="image-4">
-              <img src="{{ asset('assets/img/choose-us/choose-05.png') }}" alt="img" />
+              <img loading="lazy" decoding="async" src="{{ asset('assets/img/choose-us/choose-05.png') }}" alt="" />
             </div>
           </div>
         </div>
         <div class="col-xl-3 col-lg-3 col-sm-6">
           <div class="choose-us-item-box item-box-2 p-0">
             <div class="image-2 style-2">
-              <img src="{{ asset('assets/img/choose-us/choose-06.png') }}" alt="img" />
+              <img loading="lazy" decoding="async" src="{{ asset('assets/img/choose-us/choose-06.png') }}" alt="" />
             </div>
             <div class="choose-content content-2 style-3">
               <h3>Dedicated Support</h3>

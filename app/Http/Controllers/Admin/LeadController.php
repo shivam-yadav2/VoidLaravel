@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Lead;
+use App\Support\Like;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -14,24 +16,14 @@ class LeadController extends Controller
 {
     public function index(Request $request): View
     {
-        $status = $request->query('status');
-
-        $leads = Lead::query()
-            ->when(in_array($status, Lead::STATUSES, true), fn ($q) => $q->where('status', $status))
-            ->when($request->query('q'), function ($q, $term) {
-                $q->where(function ($inner) use ($term) {
-                    $inner->where('name', 'like', "%{$term}%")
-                        ->orWhere('email', 'like', "%{$term}%")
-                        ->orWhere('company', 'like', "%{$term}%");
-                });
-            })
+        $leads = $this->filtered($request)
             ->latest()
             ->paginate(15)
             ->withQueryString();
 
         return view('admin.leads.index', [
             'leads' => $leads,
-            'status' => $status,
+            'status' => $request->query('status'),
             'q' => $request->query('q'),
             'counts' => [
                 'all' => Lead::count(),
@@ -51,40 +43,64 @@ class LeadController extends Controller
      */
     public function export(Request $request): StreamedResponse
     {
-        $status = $request->query('status');
+        $leads = $this->filtered($request)->latest()->cursor();
 
-        $leads = Lead::query()
-            ->when(in_array($status, Lead::STATUSES, true), fn ($q) => $q->where('status', $status))
-            ->when($request->query('q'), function ($q, $term) {
-                $q->where(function ($inner) use ($term) {
-                    $inner->where('name', 'like', "%{$term}%")
-                        ->orWhere('email', 'like', "%{$term}%")
-                        ->orWhere('company', 'like', "%{$term}%");
-                });
-            })
-            ->latest()
-            ->cursor();
-
-        $filename = 'leads-'.now()->format('Y-m-d').'.csv';
+        $filename = 'leads-'.now()->displayTz()->format('Y-m-d').'.csv';
 
         return response()->streamDownload(function () use ($leads) {
             $out = fopen('php://output', 'w');
-            fputcsv($out, ['Name', 'Email', 'Company', 'Budget', 'Brief', 'Status', 'Received At']);
+
+            // UTF-8 byte-order mark: without it Excel reads the file as
+            // Windows-1252 and mangles "₹", "–" and any non-Latin name.
+            fwrite($out, "\xEF\xBB\xBF");
+
+            fputcsv($out, ['Name', 'Email', 'Company', 'Budget', 'Brief', 'Status', 'Received At (IST)']);
 
             foreach ($leads as $lead) {
-                fputcsv($out, [
+                fputcsv($out, array_map([self::class, 'csvSafe'], [
                     $lead->name,
                     $lead->email,
                     $lead->company,
                     $lead->budget,
                     $lead->brief,
                     $lead->status,
-                    $lead->created_at->format('Y-m-d H:i'),
-                ]);
+                    $lead->created_at->displayTz()->format('Y-m-d H:i'),
+                ]));
             }
 
             fclose($out);
-        }, $filename, ['Content-Type' => 'text/csv']);
+        }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    /**
+     * Every text field here comes from the public contact form. A value
+     * starting with = + - @ (or a tab/CR) is executed as a formula when the
+     * CSV is opened in Excel/Sheets ("CSV injection"), so prefix it with an
+     * apostrophe to force it to be read as plain text.
+     */
+    public static function csvSafe(?string $value): ?string
+    {
+        if ($value !== null && $value !== '' && in_array($value[0], ['=', '+', '-', '@', "\t", "\r"], true)) {
+            return "'".$value;
+        }
+
+        return $value;
+    }
+
+    private function filtered(Request $request): Builder
+    {
+        $status = $request->query('status');
+        $term = trim((string) $request->query('q'));
+
+        return Lead::query()
+            ->when(in_array($status, Lead::STATUSES, true), fn ($q) => $q->where('status', $status))
+            ->when($term !== '', function ($q) use ($term) {
+                $q->where(function ($inner) use ($term) {
+                    $inner->where('name', 'like', Like::contains($term))
+                        ->orWhere('email', 'like', Like::contains($term))
+                        ->orWhere('company', 'like', Like::contains($term));
+                });
+            });
     }
 
     public function show(Lead $lead): View

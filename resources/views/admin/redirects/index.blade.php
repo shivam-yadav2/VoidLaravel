@@ -65,6 +65,7 @@
           <div class="adm-field">
             <label>From path</label>
             <input type="text" name="from_path" value="{{ old('from_path') }}" placeholder="/old-page" required />
+            <span class="adm-help">Any URL that would otherwise show “not found” — e.g. /old-page, /services/web.html or /blog/old-post. Renamed blog posts get one automatically.</span>
             @error('from_path')<span class="adm-field-error">{{ $message }}</span>@enderror
           </div>
           <div class="adm-field">

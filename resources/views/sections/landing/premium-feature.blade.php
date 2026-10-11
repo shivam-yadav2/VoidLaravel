@@ -1,5 +1,5 @@
 @php
-  $trailImages = ['hover-img-01.jpg', 'hover-img-02.jpg', 'hover-img-03.jpg', 'hover-img-04.jpg', 'hover-img-05.jpg', 'hover-img-06.jpg', 'hover-img-07.jpg', 'hover-img-08.jpg', 'hover-img-09.jpg'];
+  $trailImages = ['hover-img-01.webp', 'hover-img-02.webp', 'hover-img-03.webp', 'hover-img-04.webp', 'hover-img-05.webp', 'hover-img-06.webp', 'hover-img-07.webp', 'hover-img-08.webp', 'hover-img-09.webp'];
 
   $rowOne = [
     ['icon' => 'icon-01.png', 'label' => 'Custom Software'],
@@ -29,26 +29,23 @@
   ];
 @endphp
 <section class="premium-feature-section section-padding section-bg image-trail-animation fix">
-  <div class="image-trail-images">
+  <div class="image-trail-images" aria-hidden="true">
     @foreach ($trailImages as $img)
-      <img class="content__img" src="{{ asset('assets/img/feature/' . $img) }}" alt="Trail Image" />
+      <img loading="lazy" decoding="async" class="content__img" src="{{ asset('assets/img/feature/' . $img) }}" alt="" />
     @endforeach
   </div>
   <div class="container">
     <div class="hand-shape float-bob-y">
-      <img src="{{ asset('assets/img/feature/hand.png') }}" alt="img" />
+      <img loading="lazy" decoding="async" src="{{ asset('assets/img/feature/hand.png') }}" alt="" />
     </div>
     <div class="emoji-shape float-bob-x">
-      <img src="{{ asset('assets/img/feature/emoji-01.png') }}" alt="img" />
+      <img loading="lazy" decoding="async" src="{{ asset('assets/img/feature/emoji-01.png') }}" alt="" />
     </div>
     <div class="section-title-area">
       <div class="section-title title-two">
         <div class="counter-title-item">
-          <div class="title-counter">
-            <h2><span class="count">50</span>+</h2>
-          </div>
           <span class="sub-title sub-two mb-0 wow fadeInUp">
-            <img src="{{ asset('assets/img/title/icon-04.svg') }}" alt="img" />
+            <img loading="lazy" decoding="async" src="{{ asset('assets/img/title/icon-04.svg') }}" alt="" />
             Built to scale with you
           </span>
         </div>
@@ -62,7 +59,7 @@
         @foreach ($rowOne as $item)
           <div class="feature-item">
             <span>
-              <img src="{{ asset('assets/img/feature/icon/' . $item['icon']) }}" alt="img" />
+              <img loading="lazy" decoding="async" src="{{ asset('assets/img/feature/icon/' . $item['icon']) }}" alt="" />
               {{ $item['label'] }}
             </span>
           </div>
@@ -77,7 +74,7 @@
         @foreach ($rowTwo as $item)
           <div class="feature-item">
             <span>
-              <img src="{{ asset('assets/img/feature/icon/' . $item['icon']) }}" alt="img" />
+              <img loading="lazy" decoding="async" src="{{ asset('assets/img/feature/icon/' . $item['icon']) }}" alt="" />
               {{ $item['label'] }}
             </span>
           </div>
@@ -87,6 +84,6 @@
   </div>
 
   <div class="feature-big-text wow fadeInUp" data-wow-delay=".5s">
-    <h2 class="name">VOIDLAYER</h2>
+    <p class="name" aria-hidden="true">VOIDLAYER</p>
   </div>
 </section>

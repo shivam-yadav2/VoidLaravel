@@ -1,7 +1,5 @@
 @extends('layouts.app')
 
-@section('title', 'About Us')
-
 @section('content')
   @include('sections.about.about-hero')
   @include('sections.about.about-story')

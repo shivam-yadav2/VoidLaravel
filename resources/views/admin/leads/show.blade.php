@@ -12,7 +12,7 @@
           <div>
             <h1>{{ $lead->name }}</h1>
             <p class="adm-muted">
-              {{ $lead->created_at->format('d M Y, H:i') }} · {{ $lead->created_at->diffForHumans() }}
+              {{ $lead->created_at->displayTz()->format('d M Y, H:i T') }} · {{ $lead->created_at->diffForHumans() }}
             </p>
           </div>
           <span class="adm-badge adm-badge--{{ $lead->status }}">{{ $lead->status }}</span>

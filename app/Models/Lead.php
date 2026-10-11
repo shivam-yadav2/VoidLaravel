@@ -17,16 +17,18 @@ class Lead extends Model
     ];
 
     /**
-     * The budget bands offered on the public contact form. Single source of
-     * truth: the form renders these and the controller validates against them,
-     * so a tampered or mis-encoded hidden input fails validation cleanly
-     * instead of reaching the database.
+     * The budget bands offered on the public contact form, in INR. Single
+     * source of truth: the form renders these and the controller validates
+     * against them, so a tampered or mis-encoded hidden input fails
+     * validation cleanly instead of reaching the database. Leads saved
+     * before the switch from USD keep their original text.
      */
     public const BUDGETS = [
-        '< $25k',
-        '$25k – $75k',
-        '$75k – $200k',
-        '$200k+',
+        'Under ₹2 lakh',
+        '₹2 – 5 lakh',
+        '₹5 – 15 lakh',
+        '₹15 lakh+',
+        'Not sure yet',
     ];
 
     protected $fillable = [

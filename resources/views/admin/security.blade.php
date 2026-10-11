@@ -28,7 +28,7 @@
   @if ($user->hasTwoFactorEnabled())
     <div class="adm-card">
       <h2 class="adm-label">Two-factor authentication</h2>
-      <p><span class="adm-badge adm-badge--contacted">Enabled</span> since {{ $user->two_factor_confirmed_at->format('d M Y') }}.</p>
+      <p><span class="adm-badge adm-badge--contacted">Enabled</span> since {{ $user->two_factor_confirmed_at->displayTz()->format('d M Y') }}.</p>
 
       <form method="POST" action="{{ route('admin.security.2fa.recovery-codes') }}" class="adm-inline-security-form">
         @csrf

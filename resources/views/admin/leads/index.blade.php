@@ -71,7 +71,7 @@
               <td>{{ $lead->company ?: '—' }}</td>
               <td>{{ $lead->budget ?: '—' }}</td>
               <td><span class="adm-badge adm-badge--{{ $lead->status }}">{{ $lead->status }}</span></td>
-              <td class="adm-muted adm-small">{{ $lead->created_at->format('d M Y, H:i') }}</td>
+              <td class="adm-muted adm-small">{{ $lead->created_at->displayTz()->format('d M Y, H:i') }}</td>
               <td class="adm-right">
                 <a href="{{ route('admin.leads.show', $lead) }}" class="adm-btn adm-btn--sm">View</a>
               </td>

@@ -5,7 +5,7 @@
   <div class="contact-card">
     <div class="contact-card__row">
       <div class="contact-card__icon">
-        <i class="fa-solid fa-location-dot"></i>
+        <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
       </div>
       <div>
         <p class="contact-card__kicker">Studio</p>
@@ -19,14 +19,14 @@
     <div class="contact-card">
       <div class="contact-card__row">
         <div class="contact-card__icon">
-          <i class="fa-solid fa-phone"></i>
+          <i class="fa-solid fa-phone" aria-hidden="true"></i>
         </div>
         <div>
           <p class="contact-card__kicker">Phone</p>
           <p class="contact-card__title">
             <a href="tel:{{ $site->contact_phone_link }}" class="contact-info__phone">{{ $site->contact_phone }}</a>
           </p>
-          <p class="contact-card__text">Support {{ $site->contact_hours }}</p>
+          <p class="contact-card__text">{{ $site->contact_hours }}</p>
         </div>
       </div>
     </div>
@@ -34,19 +34,19 @@
 
   <div class="contact-card">
     <p class="contact-card__kicker">What happens next</p>
-    <ul class="contact-steps">
+    <ol class="contact-steps">
       <li>
         <span class="contact-steps__num">1</span>
-        A founding partner reads your message — not a bot.
+        A senior team member reads your message — not a bot.
       </li>
       <li>
         <span class="contact-steps__num">2</span>
-        We come back within 24h with three concrete approaches.
+        We reply within one business day with questions or a first approach.
       </li>
       <li>
         <span class="contact-steps__num">3</span>
         If there&rsquo;s a fit, we scope a 2-week discovery.
       </li>
-    </ul>
+    </ol>
   </div>
 </div>

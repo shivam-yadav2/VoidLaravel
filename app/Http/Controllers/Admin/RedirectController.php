@@ -47,14 +47,24 @@ class RedirectController extends Controller
     {
         $data = $request->validate([
             'from_path' => ['required', 'string', 'max:255'],
-            'to_path' => ['required', 'string', 'max:255'],
+            // A site path (/new-page) or a full http(s) URL — never a
+            // javascript:/data: scheme.
+            'to_path' => ['required', 'string', 'max:255', 'regex:#^(/|https?://)#i'],
             'status_code' => ['required', Rule::in([301, 302])],
+        ], [
+            'to_path.regex' => 'The destination must be a site path starting with / or a full https:// URL.',
         ]);
 
         // Validate uniqueness against the *normalized* form, since the raw
         // input ("old-page" vs "/old-page/") isn't what's actually stored.
         $normalized = Redirect::normalize($data['from_path']);
         $clash = Redirect::where('from_path', $normalized)->when($redirect, fn ($q) => $q->where('id', '!=', $redirect->id))->exists();
+
+        if ($normalized === Redirect::normalize($data['to_path'])) {
+            throw ValidationException::withMessages([
+                'to_path' => 'A redirect can’t point to itself — that would loop forever.',
+            ]);
+        }
 
         if ($clash) {
             throw ValidationException::withMessages([

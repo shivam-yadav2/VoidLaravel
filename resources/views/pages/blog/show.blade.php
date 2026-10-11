@@ -2,7 +2,7 @@
 
 @section('content')
   <article class="blog-post">
-    <header class="blog-post__hero bg-cover" style="background-image: url({{ asset('assets/img/hero/hero-bg.jpg') }});">
+    <header class="blog-post__hero bg-cover" style="background-image: url({{ asset('assets/img/hero/hero-bg.webp') }});">
       <div class="container">
         <nav class="blog-crumbs" aria-label="Breadcrumb">
           <a href="{{ route('home') }}">Home</a>
@@ -17,7 +17,7 @@
         <h1 class="blog-post__title tx-title">{{ $post->title }}</h1>
 
         <div class="blog-post__meta">
-          <time datetime="{{ $post->published_at->toDateString() }}">{{ $post->published_at->format('d F Y') }}</time>
+          <time datetime="{{ $post->published_at->displayTz()->toDateString() }}">{{ $post->published_at->displayTz()->format('d F Y') }}</time>
           <span class="blog-post__dot"></span>
           <span>{{ $post->readingMinutes() }} min read</span>
           @if ($post->author)
@@ -85,7 +85,7 @@
                 </a>
                 <div class="blog-card__body">
                   <div class="blog-card__meta">
-                    <time datetime="{{ $item->published_at->toDateString() }}">{{ $item->published_at->format('d M Y') }}</time>
+                    <time datetime="{{ $item->published_at->displayTz()->toDateString() }}">{{ $item->published_at->displayTz()->format('d M Y') }}</time>
                     <span>{{ $item->readingMinutes() }} min read</span>
                   </div>
                   <h3 class="blog-card__title">

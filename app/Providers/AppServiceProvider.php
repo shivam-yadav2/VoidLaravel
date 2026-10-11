@@ -2,8 +2,15 @@
 
 namespace App\Providers;
 
+use App\Models\Faq;
+use App\Models\FeatureCard;
 use App\Models\Page;
+use App\Models\Product;
+use App\Models\Stat;
+use App\Models\TechBadge;
+use App\Models\Testimonial;
 use App\Support\SiteConfig;
+use Carbon\Carbon;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
@@ -32,6 +39,12 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
+        // `$date->displayTz()` — a copy converted from the UTC storage
+        // timezone into the business's local one (config app.display_timezone).
+        Carbon::macro('displayTz', function () {
+            return $this->copy()->setTimezone(config('app.display_timezone'));
+        });
+
         // Admin-managed contact details, socials and copy, available to every
         // view as `$site` so partials never have to be passed them explicitly.
         View::share('site', $this->app->make(SiteConfig::class));
@@ -41,5 +54,18 @@ class AppServiceProvider extends ServiceProvider
         View::composer('partials.support-cta', function ($view) {
             $view->with('footerPages', Page::footerLinks());
         });
+
+        // CMS-driven homepage/about/services sections get their data here
+        // rather than querying inside the Blade partial.
+        View::composer('sections.landing.products', function ($view) {
+            $view->with('products', Product::published()->with('images')->ordered()->take(6)->get());
+            $view->with('productTotal', Product::published()->count());
+        });
+        View::composer('sections.landing.faq', fn ($view) => $view->with('faqs', Faq::active()->get()));
+        View::composer('sections.landing.testimonial', fn ($view) => $view->with('testimonials', Testimonial::active()->get()));
+        View::composer('sections.landing.feature-highlights', fn ($view) => $view->with('badges', TechBadge::active()->get()));
+        View::composer('sections.about.about-stats', fn ($view) => $view->with('stats', Stat::active()->get()));
+        View::composer('sections.services.services-list', fn ($view) => $view->with('cards', FeatureCard::group(FeatureCard::GROUP_SERVICES)->active()->get()));
+        View::composer('sections.about.about-values', fn ($view) => $view->with('cards', FeatureCard::group(FeatureCard::GROUP_ABOUT_VALUES)->active()->get()));
     }
 }

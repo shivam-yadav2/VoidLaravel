@@ -1,6 +1,3 @@
-@php
-  $cards = \App\Models\FeatureCard::group('about_values')->active()->get();
-@endphp
 @if ($cards->isNotEmpty())
 <section class="core-features-section section-padding section-bg fix">
   <div class="container">
@@ -18,7 +15,7 @@
         <div class="col-xl-4 col-lg-6 wow fadeInUp" data-wow-delay="{{ min(0.3 + $i * 0.2, 1) }}s">
           <div class="feature-card-item">
             <div class="core-feature-image">
-              <img src="{{ $card->iconUrl() ?: asset('assets/img/core-feature/image-0'.((($i % 5)) + 1).'.png') }}" alt="img" />
+              <img loading="lazy" decoding="async" src="{{ $card->iconUrl() ?: asset('assets/img/core-feature/image-0'.((($i % 5)) + 1).'.png') }}" alt="" />
             </div>
             <div class="feature-content">
               <h3>{{ $card->title }}</h3>

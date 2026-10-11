@@ -13,13 +13,13 @@
       $('#mobile-menu').meanmenu({
         meanMenuContainer: '.mobile-menu',
         meanScreenWidth: "1199",
-        meanExpand: ['<i class="far fa-plus"></i>'],
+        meanExpand: ['<i class="fas fa-plus"></i>'],
     });
 
        $('#mobile-menus').meanmenu({
         meanMenuContainer: '.mobile-menus',
         meanScreenWidth: "19920",
-        meanExpand: ['<i class="far fa-plus"></i>'],
+        meanExpand: ['<i class="fas fa-plus"></i>'],
     });
 
      $documentOn.on("click", ".mean-expand", function () {
@@ -121,14 +121,14 @@
        Video & Image Popup Js Start
     ================================ */
 
-      $(".img-popup").magnificPopup({
+      if ($.fn.magnificPopup) $(".img-popup").magnificPopup({
         type: "image",
         gallery: {
           enabled: true,
         },
       });
 
-      $(".video-popup").magnificPopup({
+      if ($.fn.magnificPopup) $(".video-popup").magnificPopup({
         type: "iframe",
         callbacks: {},
       });
@@ -153,7 +153,7 @@
     ================================ */
 
     if ($('.single-select').length) {
-        $('.single-select').niceSelect();
+        if ($.fn.niceSelect) $('.single-select').niceSelect();
     }
 
       /* ================================
@@ -481,15 +481,31 @@
             nullTargetWarn: false,
         });
 
-        let smoother = ScrollSmoother.create({
-            wrapper: "#smooth-wrapper",
-            content: "#smooth-content",
-            smooth: 2,
-            effects: true,
-            smoothTouch: 0.1,
-            normalizeScroll: false,
-            ignoreMobileResize: true,
-        });
+        // Smooth scrolling is decorative — skip it entirely for visitors who
+        // asked their OS for reduced motion.
+        if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            let smoother = ScrollSmoother.create({
+                wrapper: "#smooth-wrapper",
+                content: "#smooth-content",
+                smooth: 1.2,
+                effects: true,
+                smoothTouch: 0.1,
+                normalizeScroll: false,
+                ignoreMobileResize: true,
+            });
+
+            // ScrollSmoother takes over scrolling after the browser has
+            // already tried (and failed) to jump to a #fragment, e.g. the
+            // contact form's success message after a redirect. Re-apply it.
+            if (window.location.hash) {
+                const hashTarget = document.querySelector(window.location.hash.replace(/[^#\w-]/g, ""));
+                if (hashTarget) {
+                    window.addEventListener("load", function () {
+                        smoother.scrollTo(hashTarget, false, "top 120px");
+                    });
+                }
+            }
+        }
     }
 
         /* ================================

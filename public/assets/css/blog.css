@@ -311,8 +311,7 @@
   background-color: var(--black);
 }
 
-.blog-post__hero,
-.policy-hero {
+.blog-post__hero {
   padding: 190px 0 70px;
   background-position: center;
   background-size: cover;
@@ -456,22 +455,6 @@
 }
 
 /* ---- Policy / content pages ---- */
-.policy-page {
-  background-color: var(--black);
-}
-
-.policy-hero__updated {
-  color: #ffffff80;
-  font-size: 15px;
-  margin: 18px 0 0;
-}
-
-.policy-body {
-  max-width: 820px;
-  margin: 0 auto;
-  padding: 70px 0 110px;
-}
-
 /* ---- Prose: shared styling for admin-authored HTML ---- */
 .prose {
   color: #ffffffcc;
@@ -672,8 +655,7 @@
   .blog-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  .blog-post__hero,
-  .policy-hero {
+  .blog-post__hero {
     padding: 150px 0 60px;
   }
 }
@@ -696,9 +678,6 @@
   .blog-post__figure {
     margin-top: -30px;
     border-radius: 16px;
-  }
-  .policy-body {
-    padding: 50px 0 80px;
   }
   .prose {
     font-size: 16px;

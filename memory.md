@@ -7,6 +7,50 @@ so they don't get hit twice.
 
 ---
 
+## 2026-10-11 — Full-site audit + fix pass, studio video
+
+Audit found the site rendering very differently from what the code implied.
+Biggest *live* bugs, each verified in a real (headless Brave) browser, not
+just by reading code:
+
+- **Brand fonts never loaded.** The CSP had no fonts.googleapis.com /
+  fonts.gstatic.com, and main.css's `@import` URLs contained `&amp;` (HTML
+  entity inside CSS). Fonts now load from one `<link>` in the layout.
+- **Homepage still had the purchased theme's marketplace copy** ("Figma files
+  included", "One click install", "280 EXPERT TRAINERS", device-resolution
+  specs) and the seeded fake testimonials ("Grate template"). Rewritten /
+  removed; migration 2026_10_11_000002 deletes the exact placeholder rows.
+- **Raster art from the theme showed other companies' claims** — the Services
+  laptop showed "Reliable — Expert SEO agency, 98% clients satisfied". Replaced
+  with a composite of the real homepage. The responsive/engagement mockups
+  (element-00x, responsive/image-001) still contain theme text such as
+  "500+ partners" baked into the image — needs new artwork, can't be fixed in code.
+- **Vendor CSS bug hid the first FAQ**: `.feature-highlights-section::before`
+  has `top:50%` AND `height:100%`, so its white panel overhung the FAQ.
+- **Footer links were white-on-white** (blog.css `#ffffff99` on the white
+  footer) — Blog/Privacy/Terms were invisible.
+- Contact form privacy link was `href="#privacy"`.
+
+Decisions:
+- Storage stays UTC; display/input use `config('app.display_timezone')`
+  (Asia/Kolkata) via the Carbon `displayTz()` macro. No data migration needed.
+- Redirects now fire from the 404 exception handler (bootstrap/app.php), so
+  they work for any path, and renaming a live post slug auto-creates one.
+- Font Awesome Pro 6.0 and GSAP 3.11 Club plugins (licensing risk) replaced
+  with Font Awesome Free 6.7.2 and GSAP 3.13 (all plugins free).
+- GA / Meta Pixel load only after cookie-banner consent.
+
+Gotcha: a stale `bootstrap/cache/config.php` (production config) existed in
+the local checkout. With it present, env overrides are ignored — and
+`php artisan test` would run RefreshDatabase against MySQL `dbvoid`. Always
+`php artisan optimize:clear` locally before running tests.
+
+Studio video: built with /brag-slim as an HTML composition rendered frame by
+frame (sources in brag-output/work, gitignored); output in public/assets/video.
+The section only shows the play button when the mp4 exists.
+
+---
+
 ## 2026-08-18 — Full admin expansion: dynamic content, RBAC, media, integrations, 2FA
 
 User asked for everything from a 4-part feature menu (dynamic homepage

@@ -1,7 +1,5 @@
 @extends('layouts.app')
 
-@section('title', 'Services')
-
 @section('content')
   @include('sections.services.services-hero')
   @include('sections.services.services-list')

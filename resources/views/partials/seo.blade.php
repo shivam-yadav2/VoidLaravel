@@ -4,8 +4,9 @@
    * to the admin-managed site settings so every URL still ships a sane title,
    * description, canonical and social card.
    *
-   * Supported keys: title, description, image, canonical, type, noindex,
-   * published_time, modified_time, author, jsonld (array|null)
+   * Supported keys: key, title, description, image, canonical, type, noindex,
+   * published_time, modified_time, author, jsonld (one schema.org object or a
+   * list of them), breadcrumbs (list of [name, url] pairs)
    */
   $seo = array_merge([
       'key' => null,
@@ -19,6 +20,7 @@
       'modified_time' => null,
       'author' => null,
       'jsonld' => null,
+      'breadcrumbs' => [],
   ], $seo ?? []);
 
   // Anything an admin filled in at /admin/seo outranks the controller default.
@@ -28,6 +30,68 @@
   $metaTitle = $seo['title'] ? $seo['title'].' | '.$siteName : $siteName.' — '.$site->site_tagline;
   $metaDescription = str(strip_tags($seo['description'] ?: $site->site_description))->squish()->limit(160)->toString();
   $metaImage = $seo['image'] ?: asset($site->site_og_image ?: 'assets/img/void_logo.png');
+
+  // "Lucknow, Uttar Pradesh" -> locality + region, so the address is
+  // machine-readable rather than one free-text blob.
+  $addressParts = array_map('trim', explode(',', (string) $site->contact_address));
+
+  $organization = array_filter([
+      '@type' => 'Organization',
+      '@id' => url('/').'#organization',
+      'name' => $siteName,
+      'url' => url('/'),
+      'logo' => asset('assets/img/void_logo.png'),
+      'description' => $site->site_description,
+      'email' => $site->contact_email,
+      'telephone' => $site->contact_phone_link,
+      'address' => array_filter([
+          '@type' => 'PostalAddress',
+          'addressLocality' => $addressParts[0] ?? null,
+          'addressRegion' => $addressParts[1] ?? null,
+          'addressCountry' => 'IN',
+      ]),
+      'contactPoint' => array_filter([
+          '@type' => 'ContactPoint',
+          'contactType' => 'sales',
+          'email' => $site->contact_email,
+          'telephone' => $site->contact_phone_link,
+          'areaServed' => 'Worldwide',
+          'availableLanguage' => ['English', 'Hindi'],
+      ]),
+      'sameAs' => array_values($site->socialLinks()) ?: null,
+  ]);
+
+  $graph = [$organization];
+
+  if (request()->routeIs('home')) {
+      $graph[] = [
+          '@type' => 'WebSite',
+          '@id' => url('/').'#website',
+          'name' => $siteName,
+          'url' => url('/'),
+          'publisher' => ['@id' => url('/').'#organization'],
+      ];
+  }
+
+  if ($seo['breadcrumbs']) {
+      $graph[] = [
+          '@type' => 'BreadcrumbList',
+          'itemListElement' => collect($seo['breadcrumbs'])->values()->map(fn ($crumb, $i) => [
+              '@type' => 'ListItem',
+              'position' => $i + 1,
+              'name' => $crumb[0],
+              'item' => $crumb[1],
+          ])->all(),
+      ];
+  }
+
+  if ($seo['jsonld']) {
+      $pageSchemas = array_is_list($seo['jsonld']) ? $seo['jsonld'] : [$seo['jsonld']];
+      foreach ($pageSchemas as $schema) {
+          unset($schema['@context']);
+          $graph[] = $schema;
+      }
+  }
 @endphp
 
 <title>{{ $metaTitle }}</title>
@@ -35,7 +99,7 @@
 <link rel="canonical" href="{{ $seo['canonical'] }}" />
 
 @if ($seo['noindex'])
-  <meta name="robots" content="noindex, nofollow" />
+  <meta name="robots" content="noindex, follow" />
 @else
   <meta name="robots" content="index, follow, max-image-preview:large" />
 @endif
@@ -47,7 +111,7 @@
 <meta property="og:description" content="{{ $metaDescription }}" />
 <meta property="og:url" content="{{ $seo['canonical'] }}" />
 <meta property="og:image" content="{{ $metaImage }}" />
-<meta property="og:locale" content="en_US" />
+<meta property="og:locale" content="en_IN" />
 @if ($seo['published_time'])
   <meta property="article:published_time" content="{{ $seo['published_time'] }}" />
 @endif
@@ -65,22 +129,4 @@
 <meta name="twitter:image" content="{{ $metaImage }}" />
 
 {{-- Structured data --}}
-@if ($seo['jsonld'])
-  <script type="application/ld+json">{!! json_encode($seo['jsonld'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
-@else
-  <script type="application/ld+json">{!! json_encode([
-      '@context' => 'https://schema.org',
-      '@type' => 'Organization',
-      'name' => $siteName,
-      'url' => url('/'),
-      'logo' => asset('assets/img/void_logo.png'),
-      'description' => $site->site_description,
-      'email' => $site->contact_email,
-      'telephone' => $site->contact_phone_link,
-      'address' => [
-          '@type' => 'PostalAddress',
-          'addressLocality' => $site->contact_address,
-      ],
-      'sameAs' => array_values($site->socialLinks()),
-  ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
-@endif
+<script type="application/ld+json">{!! json_encode(['@context' => 'https://schema.org', '@graph' => $graph], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>

@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\PageController as AdminPageController;
 use App\Http\Controllers\Admin\PostController as AdminPostController;
+use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\RedirectController;
 use App\Http\Controllers\Admin\SeoController;
 use App\Http\Controllers\Admin\SettingController;
@@ -20,6 +21,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
@@ -38,6 +40,9 @@ Route::get('/contact', [SiteController::class, 'contact'])->name('contact');
 Route::post('/contact', [ContactController::class, 'store'])
     ->middleware('throttle:8,1')
     ->name('contact.store');
+
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+Route::get('/products/{product:slug}', [ProductController::class, 'show'])->name('products.show');
 
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/category/{category:slug}', [BlogController::class, 'category'])->name('blog.category');
@@ -91,6 +96,14 @@ Route::prefix('admin')->group(function () {
         Route::post('/categories', [AdminCategoryController::class, 'store'])->name('admin.categories.store');
         Route::put('/categories/{category:id}', [AdminCategoryController::class, 'update'])->name('admin.categories.update');
         Route::delete('/categories/{category:id}', [AdminCategoryController::class, 'destroy'])->name('admin.categories.destroy');
+
+        // Own products (SaaS, apps) — card grid + detail modal on the site
+        Route::get('/products', [AdminProductController::class, 'index'])->name('admin.products.index');
+        Route::get('/products/create', [AdminProductController::class, 'create'])->name('admin.products.create');
+        Route::post('/products', [AdminProductController::class, 'store'])->name('admin.products.store');
+        Route::get('/products/{product:id}/edit', [AdminProductController::class, 'edit'])->name('admin.products.edit');
+        Route::put('/products/{product:id}', [AdminProductController::class, 'update'])->name('admin.products.update');
+        Route::delete('/products/{product:id}', [AdminProductController::class, 'destroy'])->name('admin.products.destroy');
 
         // Content pages (privacy, terms, …)
         Route::get('/pages', [AdminPageController::class, 'index'])->name('admin.pages.index');

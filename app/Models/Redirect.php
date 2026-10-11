@@ -30,6 +30,26 @@ class Redirect extends Model
         return $path === '/' ? $path : rtrim($path, '/');
     }
 
+    /**
+     * Keep an old public URL working after its slug changes (e.g. a renamed
+     * blog post): 301 the old path to the new one, collapse earlier renames
+     * so chains go straight to the latest URL, and drop any redirect that
+     * would now point the live URL away from itself.
+     */
+    public static function forRename(string $oldPath, string $newPath): void
+    {
+        $from = self::normalize($oldPath);
+        $to = self::normalize($newPath);
+
+        static::where('from_path', $to)->delete();
+        static::where('to_path', $from)->update(['to_path' => $to]);
+
+        static::updateOrCreate(
+            ['from_path' => $from],
+            ['to_path' => $to, 'status_code' => 301, 'is_active' => true],
+        );
+    }
+
     public function setFromPathAttribute(string $value): void
     {
         $this->attributes['from_path'] = self::normalize($value);

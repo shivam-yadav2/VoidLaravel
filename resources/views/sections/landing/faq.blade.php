@@ -1,6 +1,3 @@
-@php
-  $faqs = \App\Models\Faq::active()->get();
-@endphp
 @if ($faqs->isNotEmpty())
 <section class="faq-section section-padding fix">
   <div class="container">
@@ -14,20 +11,20 @@
           <div class="support-box-item">
             <div class="support-card style-2">
               <div class="icon">
-                <img src="{{ asset('assets/img/faq/icon-01.png') }}" alt="img" />
+                <img loading="lazy" decoding="async" src="{{ asset('assets/img/faq/icon-01.png') }}" alt="" />
               </div>
               <div class="content">
                 <h3><a href="tel:{{ $site->contact_phone_link }}">{{ $site->contact_phone }}</a></h3>
-                <p>Contact Support</p>
+                <p>Call us</p>
               </div>
             </div>
             <div class="support-card">
               <div class="icon">
-                <img src="{{ asset('assets/img/faq/icon-02.png') }}" alt="img" />
+                <img loading="lazy" decoding="async" src="{{ asset('assets/img/faq/icon-02.png') }}" alt="" />
               </div>
               <div class="content">
                 <h3>{{ $site->contact_hours }}</h3>
-                <p>Support Center</p>
+                <p>Support hours</p>
               </div>
             </div>
           </div>
@@ -35,7 +32,7 @@
       </div>
       <div class="col-lg-6">
         <div class="faq-items">
-          <div class="accordion" id="accordioHunkmple">
+          <div class="accordion" id="faqAccordion">
             @foreach ($faqs as $i => $faq)
               @php
                 $collapseId = 'faqCollapse' . $faq->id;
@@ -60,7 +57,7 @@
                   id="{{ $collapseId }}"
                   class="accordion-collapse collapse{{ $open ? ' show' : '' }}"
                   aria-labelledby="{{ $headingId }}"
-                  data-bs-parent="#accordioHunkmple"
+                  data-bs-parent="#faqAccordion"
                   role="region"
                 >
                   <div class="accordion-body">

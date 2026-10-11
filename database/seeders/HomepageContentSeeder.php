@@ -6,7 +6,6 @@ use App\Models\Faq;
 use App\Models\FeatureCard;
 use App\Models\Stat;
 use App\Models\TechBadge;
-use App\Models\Testimonial;
 use Illuminate\Database\Seeder;
 
 class HomepageContentSeeder extends Seeder
@@ -16,36 +15,16 @@ class HomepageContentSeeder extends Seeder
      * the database, so switching those sections over to the new CMS tables
      * doesn't blank the homepage out. Safe to re-run (firstOrCreate).
      *
-     * Testimonials are seeded from the theme's original placeholder names
-     * (Theresa Webb, etc.) — they are NOT real customer quotes. Replace them
-     * at /admin/testimonials before this goes live; a fake testimonial on a
-     * real site is worse than none.
+     * Testimonials are deliberately NOT seeded: they must be real client
+     * quotes, added at /admin/testimonials. The homepage section stays
+     * hidden until at least one is active.
      */
     public function run(): void
     {
-        $this->seedTestimonials();
         $this->seedFaqs();
         $this->seedTechBadges();
         $this->seedStats();
         $this->seedFeatureCards();
-    }
-
-    private function seedTestimonials(): void
-    {
-        $rows = [
-            ['client_name' => 'Theresa Webb', 'client_role' => 'General Manager', 'quote' => 'Grate template & grate code — I love the modern designs with many different styles to choose.', 'rating' => 5],
-            ['client_name' => 'Dianne Russelln', 'client_role' => 'Buyer', 'quote' => 'Grate template & grate code — I love the modern designs with many different styles to choose.', 'rating' => 5],
-            ['client_name' => 'Wade Warren', 'client_role' => 'Seller', 'quote' => 'Grate template & grate code — I love the modern designs with many different styles to choose.', 'rating' => 5],
-        ];
-
-        foreach ($rows as $i => $row) {
-            Testimonial::firstOrCreate(
-                ['client_name' => $row['client_name'], 'client_role' => $row['client_role']],
-                [...$row, 'is_active' => true, 'sort_order' => $i]
-            );
-        }
-
-        $this->command?->warn('Testimonials seeded with PLACEHOLDER names — replace at /admin/testimonials before launch.');
     }
 
     private function seedFaqs(): void

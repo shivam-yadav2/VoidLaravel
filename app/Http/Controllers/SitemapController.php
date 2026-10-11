@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Page;
 use App\Models\Post;
+use App\Models\Product;
 use Illuminate\Http\Response;
 
 class SitemapController extends Controller
@@ -19,6 +20,14 @@ class SitemapController extends Controller
             ['loc' => route('blog.index'), 'priority' => '0.9', 'changefreq' => 'weekly'],
         ];
 
+        $products = Product::published()->ordered()->get();
+        if ($products->isNotEmpty()) {
+            $urls[] = ['loc' => route('products.index'), 'priority' => '0.9', 'changefreq' => 'monthly'];
+        }
+        foreach ($products as $product) {
+            $urls[] = ['loc' => route('products.show', $product), 'lastmod' => $product->updated_at?->toAtomString(), 'priority' => '0.8', 'changefreq' => 'monthly'];
+        }
+
         foreach (Post::published()->latest('published_at')->get() as $post) {
             $urls[] = [
                 'loc' => route('blog.show', $post),
@@ -28,7 +37,9 @@ class SitemapController extends Controller
             ];
         }
 
-        foreach (Category::has('posts')->get() as $category) {
+        // Only categories with at least one *live* post — a category holding
+        // nothing but drafts would list an empty page.
+        foreach (Category::whereHas('posts', fn ($q) => $q->published())->get() as $category) {
             $urls[] = [
                 'loc' => route('blog.category', $category),
                 'priority' => '0.5',

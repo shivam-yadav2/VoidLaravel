@@ -34,7 +34,7 @@
                   {{ $page->is_published ? 'published' : 'draft' }}
                 </span>
               </td>
-              <td class="adm-muted adm-small">{{ $page->updated_at->format('d M Y') }}</td>
+              <td class="adm-muted adm-small">{{ $page->updated_at->displayTz()->format('d M Y') }}</td>
               <td class="adm-right">
                 <a href="{{ route('page.show', $page) }}" target="_blank" rel="noopener" class="adm-btn adm-btn--sm">View</a>
                 <a href="{{ route('admin.pages.edit', $page) }}" class="adm-btn adm-btn--sm">Edit</a>

@@ -1,7 +1,7 @@
-<section class="hero-section hero-1 fix bg-cover" style="background-image: url({{ asset('assets/img/hero/hero-bg.jpg') }});">
+<section class="hero-section hero-1 fix bg-cover" style="background-image: url({{ asset('assets/img/hero/hero-bg.webp') }});">
   <div class="container">
     <div class="arrow-shape float-bob-x">
-      <img src="{{ asset('assets/img/hero/arrow-icon.png') }}" alt="img" />
+      <img src="{{ asset('assets/img/hero/arrow-icon.png') }}" alt="" />
     </div>
     <div class="row">
       <div class="col-lg-12">
@@ -20,8 +20,8 @@
             Void Layer helps businesses streamline operations through custom software, ERP &amp; HRMS systems, web applications and AI-powered automation — built by a small, senior team that stays on after launch.
           </p>
           <div class="hero-button-item">
-            <a href="{{ url('/contact') }}" class="theme-btn wow fadeInUp" data-wow-delay=".5s">
-              <img src="{{ asset('assets/img/button-arrow.svg') }}" alt="img" />
+            <a href="{{ route('contact') }}" class="theme-btn wow fadeInUp" data-wow-delay=".5s">
+              <img src="{{ asset('assets/img/button-arrow.svg') }}" alt="" />
               Start a project
             </a>
           </div>
@@ -35,6 +35,10 @@
 @push('scripts')
   <script>
     (function () {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+      var tween = null;
+
       function setup() {
         if (typeof gsap === "undefined") return;
         var line = document.getElementById("hero-scan-line");
@@ -42,12 +46,12 @@
         var pillText = document.getElementById("hero-scan-pill-text");
         if (!line || !pill || !pillText) return;
 
-        if (setup._tween) setup._tween.kill();
+        if (tween) tween.kill();
         gsap.set(pill, { x: 0 });
         gsap.set(pillText, { x: 0 });
 
         var maxX = Math.max(line.offsetWidth - pill.offsetWidth, 0);
-        setup._tween = gsap.to(pill, {
+        tween = gsap.to(pill, {
           x: maxX,
           duration: 2.6,
           ease: "sine.inOut",
@@ -59,8 +63,14 @@
         });
       }
 
+      // Rebuilding the tween on every resize event (dozens per second while
+      // dragging a window) was wasted work — wait until resizing settles.
+      var resizeTimer = null;
       window.addEventListener("load", setup);
-      window.addEventListener("resize", setup);
+      window.addEventListener("resize", function () {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(setup, 200);
+      });
     })();
   </script>
 @endpush

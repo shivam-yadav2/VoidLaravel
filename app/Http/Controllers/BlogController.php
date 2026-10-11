@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Post;
+use App\Support\Like;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -11,27 +13,35 @@ class BlogController extends Controller
 {
     public function index(Request $request): View
     {
+        $q = str((string) $request->query('q'))->squish()->limit(100, '')->toString();
+
         $posts = Post::published()
             ->with(['category', 'author'])
-            ->when($request->query('q'), function ($query, $term) {
-                $query->where(function ($inner) use ($term) {
-                    $inner->where('title', 'like', "%{$term}%")
-                        ->orWhere('excerpt', 'like', "%{$term}%");
+            ->when($q !== '', function ($query) use ($q) {
+                $query->where(function ($inner) use ($q) {
+                    $inner->where('title', 'like', Like::contains($q))
+                        ->orWhere('excerpt', 'like', Like::contains($q));
                 });
             })
             ->latest('published_at')
             ->paginate(9)
             ->withQueryString();
 
+        $this->abortIfPastLastPage($posts);
+
         return view('pages.blog.index', [
             'posts' => $posts,
-            'categories' => Category::withCount(['posts' => fn ($q) => $q->published()])->orderBy('name')->get(),
+            'categories' => $this->categories(),
             'activeCategory' => null,
-            'q' => $request->query('q'),
+            'q' => $q,
             'seo' => [
                 'key' => 'blog.index',
                 'title' => 'Blog',
                 'description' => 'Notes on custom software, ERP & HRMS, automation and shipping products — written by the Void Layer team.',
+                'canonical' => $this->canonical(route('blog.index'), $posts),
+                // Search result pages are thin, near-infinite duplicates.
+                'noindex' => $q !== '',
+                'breadcrumbs' => [['Home', route('home')], ['Blog', route('blog.index')]],
             ],
         ]);
     }
@@ -45,14 +55,25 @@ class BlogController extends Controller
             ->paginate(9)
             ->withQueryString();
 
+        $this->abortIfPastLastPage($posts);
+
         return view('pages.blog.index', [
             'posts' => $posts,
-            'categories' => Category::withCount(['posts' => fn ($q) => $q->published()])->orderBy('name')->get(),
+            'categories' => $this->categories(),
             'activeCategory' => $category,
             'q' => null,
             'seo' => [
                 'title' => $category->name.' — Blog',
                 'description' => $category->description ?: "Articles filed under {$category->name} from the Void Layer team.",
+                'canonical' => $this->canonical(route('blog.category', $category), $posts),
+                // An empty category is a thin page; keep it reachable but
+                // out of the index until it has something in it.
+                'noindex' => $posts->total() === 0,
+                'breadcrumbs' => [
+                    ['Home', route('home')],
+                    ['Blog', route('blog.index')],
+                    [$category->name, route('blog.category', $category)],
+                ],
             ],
         ]);
     }
@@ -87,8 +108,16 @@ class BlogController extends Controller
             );
         }
 
+        $post->load(['category', 'author']);
+
+        $breadcrumbs = [['Home', route('home')], ['Blog', route('blog.index')]];
+        if ($post->category) {
+            $breadcrumbs[] = [$post->category->name, route('blog.category', $post->category)];
+        }
+        $breadcrumbs[] = [$post->title, route('blog.show', $post)];
+
         return view('pages.blog.show', [
-            'post' => $post->load(['category', 'author']),
+            'post' => $post,
             'related' => $related,
             'seo' => [
                 'title' => $post->metaTitle(),
@@ -98,26 +127,18 @@ class BlogController extends Controller
                 'published_time' => $post->published_at?->toIso8601String(),
                 'modified_time' => $post->updated_at?->toIso8601String(),
                 'author' => $post->author?->name,
+                'breadcrumbs' => $breadcrumbs,
                 'jsonld' => [
-                    '@context' => 'https://schema.org',
                     '@type' => 'BlogPosting',
                     'headline' => $post->title,
                     'description' => $post->metaDescription(),
                     'image' => $post->imageUrl() ? url($post->imageUrl()) : asset('assets/img/void_logo.png'),
                     'datePublished' => $post->published_at?->toIso8601String(),
                     'dateModified' => $post->updated_at?->toIso8601String(),
-                    'author' => [
-                        '@type' => 'Person',
-                        'name' => $post->author?->name ?? 'Void Layer',
-                    ],
-                    'publisher' => [
-                        '@type' => 'Organization',
-                        'name' => 'Void Layer',
-                        'logo' => [
-                            '@type' => 'ImageObject',
-                            'url' => asset('assets/img/void_logo.png'),
-                        ],
-                    ],
+                    'author' => $post->author
+                        ? ['@type' => 'Person', 'name' => $post->author->name]
+                        : ['@id' => url('/').'#organization'],
+                    'publisher' => ['@id' => url('/').'#organization'],
                     'mainEntityOfPage' => [
                         '@type' => 'WebPage',
                         '@id' => route('blog.show', $post),
@@ -125,5 +146,28 @@ class BlogController extends Controller
                 ],
             ],
         ]);
+    }
+
+    private function categories()
+    {
+        return Category::withCount(['posts' => fn ($q) => $q->published()])->orderBy('name')->get();
+    }
+
+    /**
+     * `?page=99` past the end used to render an empty 200 page — a soft 404
+     * that search engines happily index.
+     */
+    private function abortIfPastLastPage(LengthAwarePaginator $posts): void
+    {
+        abort_if($posts->currentPage() > max(1, $posts->lastPage()), 404);
+    }
+
+    /**
+     * Page 2+ is its own canonical URL (pointing it at page 1 tells search
+     * engines to drop every post that only appears on later pages).
+     */
+    private function canonical(string $base, LengthAwarePaginator $posts): string
+    {
+        return $posts->currentPage() > 1 ? $base.'?page='.$posts->currentPage() : $base;
     }
 }

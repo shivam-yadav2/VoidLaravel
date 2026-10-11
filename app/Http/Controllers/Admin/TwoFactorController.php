@@ -68,6 +68,7 @@ class TwoFactorController extends Controller
             'two_factor_secret' => $secret,
             'two_factor_recovery_codes' => $recoveryCodes,
             'two_factor_confirmed_at' => now(),
+            'two_factor_last_step' => null,
         ])->save();
 
         $request->session()->forget('2fa-setup-secret');
@@ -84,6 +85,7 @@ class TwoFactorController extends Controller
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,
             'two_factor_confirmed_at' => null,
+            'two_factor_last_step' => null,
         ])->save();
 
         return redirect()->route('admin.security')->with('admin_success', 'Two-factor authentication is now off.');

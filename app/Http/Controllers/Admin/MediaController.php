@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Media;
+use App\Models\Page;
+use App\Models\Post;
+use App\Support\Like;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -51,6 +54,18 @@ class MediaController extends Controller
 
     public function destroy(Media $medium): RedirectResponse
     {
+        // Library files are referenced by URL inside post/page HTML, so a
+        // delete would silently leave broken images wherever it's used.
+        $pattern = Like::contains($medium->path);
+        $usedIn = Post::where('content', 'like', $pattern)->pluck('title')
+            ->merge(Page::where('content', 'like', $pattern)->pluck('title'));
+
+        if ($usedIn->isNotEmpty()) {
+            return back()->with('admin_error', 'Still used in: '.$usedIn->take(5)->implode(', ')
+                .($usedIn->count() > 5 ? ' and '.($usedIn->count() - 5).' more' : '')
+                .'. Remove it from there first.');
+        }
+
         Storage::disk('public')->delete($medium->path);
         $medium->delete();
 

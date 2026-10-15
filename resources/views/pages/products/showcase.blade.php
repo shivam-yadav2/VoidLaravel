@@ -74,7 +74,7 @@
             });
             if (thumbs[i] && thumbs[i].scrollIntoView) thumbs[i].scrollIntoView({ block: "nearest", inline: "center", behavior: reduced ? "auto" : "smooth" });
             if (count) count.textContent = (i + 1) + " / " + slides.length;
-            if (hasGsap) gsap.fromTo(slides[i], { autoAlpha: 0, scale: 1.02 }, { autoAlpha: 1, scale: 1, duration: 0.45, ease: "power2.out" });
+            if (hasGsap) gsap.fromTo(slides[i], { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.3, ease: "power1.out" });
             index = i;
           }
 
@@ -117,8 +117,9 @@
         document.body.appendChild(modal);
         var panel = modal.querySelector("[data-product-panel]");
         var body = modal.querySelector("[data-product-body]");
-        var backdrop = modal.querySelector(".product-modal__backdrop");
-        var gallery = null, opener = null, isOpen = false, tl = null;
+        var gallery = null, opener = null, isOpen = false, closeTimer = null;
+        // Matches the panel transition in custom.css (reduced motion: none).
+        var duration = reduced ? 0 : 320;
 
         function lockScroll(lock) {
           var sm = window.ScrollSmoother && ScrollSmoother.get();
@@ -126,16 +127,13 @@
           document.documentElement.classList.toggle("modal-open", lock);
         }
 
-        // FLIP: the panel starts exactly over the clicked card and grows into
-        // place — so the card visibly "opens" into its details.
-        function fromCard(card) {
-          var c = card.getBoundingClientRect(), p = panel.getBoundingClientRect();
-          return { x: c.left - p.left, y: c.top - p.top, scaleX: c.width / p.width, scaleY: c.height / p.height };
-        }
-
+        // Opening is a plain CSS transition (fade + small rise) on two
+        // compositor-only properties — the old GSAP version scaled the whole
+        // panel up from the card and staggered its text, which stuttered.
         function open(slug, card, pushHash) {
           var tpl = document.getElementById("product-tpl-" + slug);
           if (!tpl) return false;
+          clearTimeout(closeTimer);
           opener = card || null;
           body.innerHTML = "";
           body.appendChild(tpl.content.cloneNode(true));
@@ -147,22 +145,10 @@
           gallery = window.vlProductGallery(body);
           body.scrollTop = 0;
           if (pushHash !== false) history.replaceState(null, "", "#product=" + slug);
-
-          if (hasGsap) {
-            if (tl) tl.kill();
-            tl = gsap.timeline();
-            tl.fromTo(backdrop, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.35, ease: "power2.out" }, 0);
-            if (card) {
-              var f = fromCard(card);
-              tl.fromTo(panel, { x: f.x, y: f.y, scaleX: f.scaleX, scaleY: f.scaleY, transformOrigin: "0 0", autoAlpha: 0.6 },
-                       { x: 0, y: 0, scaleX: 1, scaleY: 1, autoAlpha: 1, duration: 0.65, ease: "expo.out" }, 0);
-            } else {
-              tl.fromTo(panel, { y: 40, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.5, ease: "power3.out" }, 0);
-            }
-            tl.fromTo(body.querySelectorAll(".product-detail__info > *"), { y: 18, autoAlpha: 0 },
-                      { y: 0, autoAlpha: 1, duration: 0.45, stagger: 0.04, ease: "power2.out" }, 0.25);
-          }
-          setTimeout(function () { panel.focus({ preventScroll: true }); }, hasGsap ? 200 : 0);
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () { modal.classList.add("is-open"); });
+          });
+          panel.focus({ preventScroll: true });
           return true;
         }
 
@@ -171,28 +157,13 @@
           isOpen = false;
           if (gallery) gallery.stop();
           if (location.hash.indexOf("#product=") === 0) history.replaceState(null, "", location.pathname + location.search);
-
-          var done = function () {
+          modal.classList.remove("is-open");
+          closeTimer = setTimeout(function () {
             modal.hidden = true;
             body.innerHTML = "";
-            if (hasGsap) gsap.set(panel, { clearProps: "all" });
             lockScroll(false);
             if (opener) opener.focus({ preventScroll: true });
-          };
-
-          if (hasGsap) {
-            if (tl) tl.kill();
-            tl = gsap.timeline({ onComplete: done });
-            tl.to(backdrop, { autoAlpha: 0, duration: 0.3 }, 0.1);
-            if (opener && opener.getBoundingClientRect().width) {
-              var f = fromCard(opener);
-              tl.to(panel, { x: f.x, y: f.y, scaleX: f.scaleX, scaleY: f.scaleY, transformOrigin: "0 0", autoAlpha: 0, duration: 0.45, ease: "power3.in" }, 0);
-            } else {
-              tl.to(panel, { y: 30, autoAlpha: 0, duration: 0.3 }, 0);
-            }
-          } else {
-            done();
-          }
+          }, duration);
         }
 
         document.addEventListener("click", function (e) {

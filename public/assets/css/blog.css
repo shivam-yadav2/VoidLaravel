@@ -460,6 +460,7 @@
   color: #ffffffcc;
   font-size: 17px;
   line-height: 1.8;
+  overflow-wrap: break-word; /* long URLs wrap instead of overflowing */
 }
 
 .prose > *:first-child {
@@ -519,6 +520,16 @@
 
 .prose li {
   margin-bottom: 12px;
+}
+
+/* main.css resets every ul to list-style: none; put bullets back for
+   written content (numbered lists were unaffected). */
+.prose ul {
+  list-style: disc;
+}
+
+.prose ul ul {
+  list-style: circle;
 }
 
 .prose ul li::marker {
@@ -597,8 +608,12 @@
   opacity: 1;
 }
 
+/* Wide tables scroll inside their own box instead of widening the page. */
 .prose table {
-  width: 100%;
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  overflow-x: auto;
   border-collapse: collapse;
   margin: 0 0 24px;
   font-size: 15px;
@@ -638,7 +653,9 @@
 /* ---- Responsive ---- */
 @media (max-width: 1199px) {
   .blog-post__layout {
-    grid-template-columns: 1fr;
+    /* minmax(0, …), not 1fr: a plain 1fr column grows to its widest child,
+       so one wide table or code line pushed the whole article off-screen. */
+    grid-template-columns: minmax(0, 1fr);
     gap: 40px;
   }
   .blog-post__side {

@@ -38,7 +38,7 @@
                 </button>
               </div>
             @else
-              <img src="{{ $slide['src'] }}" alt="{{ $slide['alt'] }}" loading="lazy" decoding="async" />
+              <img src="{{ $slide['src'] }}" alt="{{ $slide['alt'] }}" loading="{{ $i === 0 ? 'eager' : 'lazy' }}" decoding="async" />
             @endif
           </figure>
         @endforeach
@@ -72,61 +72,70 @@
     @endif
   </div>
 
-  <div class="product-detail__info">
-    <div class="pd-head">
-      @if ($product->logoUrl())
-        <img class="pd-logo" src="{{ $product->logoUrl() }}" alt="" width="56" height="56" />
-      @endif
-      <div class="pd-tags">
-        @if ($product->category)
-          <span class="pd-category">{{ $product->category }}</span>
+  <div class="product-detail__info" data-product-scroll>
+    <header class="pd-header">
+      <div class="pd-head">
+        @if ($product->logoUrl())
+          <img class="pd-logo" src="{{ $product->logoUrl() }}" alt="" width="56" height="56" />
         @endif
-        <span class="pd-status pd-status--{{ $product->status }}">{{ $product->statusLabel() }}</span>
+        <div class="pd-tags">
+          @if ($product->category)
+            <span class="pd-category">{{ $product->category }}</span>
+          @endif
+          <span class="pd-status pd-status--{{ $product->status }}">{{ $product->statusLabel() }}</span>
+        </div>
       </div>
-    </div>
 
-    <{{ $headingTag }} class="pd-name" id="{{ $headingId }}">{{ $product->name }}</{{ $headingTag }}>
-    @if ($product->tagline)
-      <p class="pd-tagline">{{ $product->tagline }}</p>
-    @endif
-
-    <div class="prose pd-description">
-      @if ($product->description)
-        {{-- Authored by an authenticated admin, stored and rendered as HTML. --}}
-        {!! $product->description !!}
-      @else
-        <p>{{ $product->summary }}</p>
+      <{{ $headingTag }} class="pd-name" id="{{ $headingId }}">{{ $product->name }}</{{ $headingTag }}>
+      @if ($product->tagline)
+        <p class="pd-tagline">{{ $product->tagline }}</p>
       @endif
-    </div>
+
+      <div class="pd-actions">
+        @if ($product->product_url)
+          <a href="{{ $product->product_url }}" class="theme-btn" target="_blank" rel="noopener noreferrer">
+            <img src="{{ asset('assets/img/button-arrow.svg') }}" alt="" />
+            {{ $product->ctaLabel() }}
+          </a>
+        @endif
+        @if ($inModal ?? false)
+          <a href="{{ route('products.show', $product) }}" class="pd-pagelink">Open full page <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+        @endif
+      </div>
+    </header>
 
     @if ($product->featureList())
-      <h3 class="pd-subhead">Key features</h3>
-      <ul class="pd-features">
-        @foreach ($product->featureList() as $feature)
-          <li><i class="fa-solid fa-check" aria-hidden="true"></i>{{ $feature }}</li>
-        @endforeach
-      </ul>
+      <section class="pd-block">
+        <h3 class="pd-subhead">Key features</h3>
+        <ul class="pd-features">
+          @foreach ($product->featureList() as $feature)
+            <li><i class="fa-solid fa-check" aria-hidden="true"></i><span>{{ $feature }}</span></li>
+          @endforeach
+        </ul>
+      </section>
     @endif
+
+    <section class="pd-block">
+      <h3 class="pd-subhead">Overview</h3>
+      <div class="prose pd-description">
+        @if ($product->description)
+          {{-- Authored by an authenticated admin, stored and rendered as HTML. --}}
+          {!! $product->description !!}
+        @else
+          <p>{{ $product->summary }}</p>
+        @endif
+      </div>
+    </section>
 
     @if ($product->techList())
-      <h3 class="pd-subhead">Built with</h3>
-      <ul class="tech-chips">
-        @foreach ($product->techList() as $tech)
-          <li>{{ $tech }}</li>
-        @endforeach
-      </ul>
+      <section class="pd-block">
+        <h3 class="pd-subhead">Built with</h3>
+        <ul class="tech-chips">
+          @foreach ($product->techList() as $tech)
+            <li>{{ $tech }}</li>
+          @endforeach
+        </ul>
+      </section>
     @endif
-
-    <div class="pd-actions">
-      @if ($product->product_url)
-        <a href="{{ $product->product_url }}" class="theme-btn" target="_blank" rel="noopener noreferrer">
-          <img src="{{ asset('assets/img/button-arrow.svg') }}" alt="" />
-          {{ $product->ctaLabel() }}
-        </a>
-      @endif
-      @if ($inModal ?? false)
-        <a href="{{ route('products.show', $product) }}" class="pd-pagelink">Open full page <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
-      @endif
-    </div>
   </div>
 </div>

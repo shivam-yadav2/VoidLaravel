@@ -57,7 +57,7 @@
           </div>
         </div>
         <div class="col-xl-6 col-lg-6 col-sm-6">
-          <div class="choose-us-item-box bg-cover" style="background-image: url('{{ asset('assets/img/card-bg-2.webp') }}');">
+          <div class="choose-us-item-box item-box-tailored bg-cover" style="background-image: url('{{ asset('assets/img/card-bg-2.webp') }}');">
             <div class="choose-content content-4">
               <img loading="lazy" decoding="async" width="222" src="{{ asset('assets/img/choose-us/count-img-1.png') }}" alt="" />
               <h3 class="text-black">Solutions Tailored to <span>Your Business</span></h3>

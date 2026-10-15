@@ -2,6 +2,7 @@
 
 @section('content')
   @include('sections.services.services-hero')
+  @include('sections.services.services-offer')
   @include('sections.services.services-list')
   @include('sections.services.services-approach')
   @include('sections.services.services-video')
